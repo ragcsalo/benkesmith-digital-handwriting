@@ -13,5 +13,5 @@ A Cordova plugin that performs **offline handwriting recognition** by processing
 ## Installation
 
 ```bash
-cordova plugin add [https://github.com/ragcsalo/benkesmith-digital-handwriting.git](https://github.com/ragcsalo/benkesmith-digital-handwriting.git)
+cordova plugin add https://github.com/ragcsalo/benkesmith-digital-handwriting.git
 
