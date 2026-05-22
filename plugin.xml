@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin id="com.benkesmith.digitalhandwriting" xmlns="http://apache.org/cordova/ns/plugins/1.0" version="1.0.0">
+    <name>benkesmith-digital-handwriting</name>
+    <description>A Cordova plugin that performs offline handwriting recognition.</description>
+    <license>Apache 2.0</license>
+	<keywords>cordova,digital,text,handwriting,recognition,plugin</keywords>
+    
+	<js-module name="DigitalHandWriting" src="www/DigitalHandWriting.js">
+        <clobbers target="DigitalHandWriting" />
+    </js-module>
+
+    <platform name="android">
+		<config-file parent="/*" target="res/xml/config.xml">
+            <feature name="DigitalHandWriting">
+                <param name="android-package" value="com.benkesmith.digitalhandwriting.DigitalHandWriting" />
+            </feature>
+        </config-file>
+
+        <framework src="com.google.mlkit:digital-ink-recognition:18.1.0" />
+
+        <source-file src="src/android/DigitalHandWriting.java" target-dir="src/com/benkesmith/digitalhandwriting" />
+    </platform>
+
+    <platform name="ios">
+        <config-file target="config.xml" parent="/*">
+            <feature name="DigitalHandWriting">
+                <param name="ios-package" value="DigitalHandWriting" />
+            </feature>
+        </config-file>
+		<source-file src="src/ios/DigitalHandWriting.h" />
+		<source-file src="src/ios/DigitalHandWriting.m" />
+    </platform>
+</plugin>

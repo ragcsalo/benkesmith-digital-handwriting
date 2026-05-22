@@ -1,0 +1,32 @@
+{
+  "name": "benkesmith-digital-handwriting",
+  "version": "1.0.0",
+  "description": "A Cordova plugin that performs offline handwriting recognition.",
+  "cordova": {
+    "id": "com.benkesmith.digitalhandwriting",
+    "platforms": [
+      "android",
+      "ios"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ragcsalo/benkesmith-digital-handwriting.git"
+  },
+  "keywords": [
+    "cordova",
+    "digital",
+    "text",
+    "handwriting",
+    "recognition",
+    "plugin"
+  ],
+  "author": "Benke Smith <benke.smith@gmail.com>",
+  "license": "Apache-2.0",
+  "engines": [
+    {
+      "name": "cordova",
+      "version": ">=6.0.0"
+    }
+  ]
+}
