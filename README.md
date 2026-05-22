@@ -1,39 +1,17 @@
-# benkesmith-speech-recorder
+# benkesmith-digital-handwriting
 
-[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Apache 2.0 License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 
-A Cordova plugin for **recording WAV audio** to be used for speech recognition. Works on both **Android** and **iOS**.
+A Cordova plugin that performs **offline handwriting recognition** by processing stroke coordinates (`x`, `y`, and time vectors) directly on-device. Powered by **Google ML Kit Digital Ink Recognition** on Android. Works on both **Android** and **iOS**.
 
 ## Features
 
+- **True Stroke-Based Recognition:** Analyzes pen tracking paths/coordinates instead of static images for higher accuracy and speed.
+- **On-Device Offline Processing:** Recognition runs completely local to the device without requiring cloud API connections.
+- **Automatic Language Pack Download:** Dynamically fetches the required language models (~20MB) directly upon first usage.
 
 ## Installation
 
 ```bash
-cordova plugin add https://github.com/ragcsalo/benkesmith-speech-recorder
-```
-
-## Usage
-
-```js
-window.plugins.speechRecognition.startRecording
-(usage sample to be added)
-
-window.plugins.speechRecognition.restartRecording
-(usage sample to be added)
-
-window.plugins.speechRecognition.stopRecording
-(usage sample to be added)
-```
-
-## Platforms
-
-- Android
-- iOS
-
-## Android Notes
-
-
-## iOS Notes
-
+cordova plugin add [https://github.com/ragcsalo/benkesmith-digital-handwriting.git](https://github.com/ragcsalo/benkesmith-digital-handwriting.git)
 
