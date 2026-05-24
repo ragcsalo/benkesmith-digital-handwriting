@@ -6,13 +6,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.google.mlkit.vision.digitalink.DigitalInkRecognition;
-import com.google.mlkit.vision.digitalink.DigitalInkRecognizer;
-import com.google.mlkit.vision.digitalink.DigitalInkRecognizerOptions;
-import com.google.mlkit.vision.digitalink.Ink;
-import com.google.mlkit.vision.digitalink.Ink.Stroke;
-import com.google.mlkit.vision.digitalink.DigitalInkRecognitionModel;
-import com.google.mlkit.vision.digitalink.DigitalInkRecognitionModelIdentifier;
+import com.google.mlkit.vision.digitalink.recognition.Ink;
+import com.google.mlkit.vision.digitalink.recognition.Ink.Stroke;
+import com.google.mlkit.vision.digitalink.recognition.DigitalInkRecognition;
+import com.google.mlkit.vision.digitalink.recognition.DigitalInkRecognizer;
+import com.google.mlkit.vision.digitalink.recognition.DigitalInkRecognizerOptions;
+import com.google.mlkit.vision.digitalink.recognition.DigitalInkRecognitionModel;
+import com.google.mlkit.vision.digitalink.recognition.DigitalInkRecognitionModelIdentifier;
+
 import com.google.mlkit.common.model.RemoteModelManager;
 
 public class DigitalHandWriting extends CordovaPlugin {
@@ -22,7 +23,14 @@ public class DigitalHandWriting extends CordovaPlugin {
         if (action.equals("recognize")) {
             JSONObject inkData = args.getJSONObject(0);
             String langTag = args.getString(1);
-            this.processInk(inkData, langTag, callbackContext);
+
+            // Execute on the thread pool to avoid blocking the WebCore / UI thread
+            cordova.getThreadPool().execute(new Runnable() {
+                @Override
+                public void run() {
+                    processInk(inkData, langTag, callbackContext);
+                }
+            });
             return true;
         }
         return false;
@@ -37,7 +45,7 @@ public class DigitalHandWriting extends CordovaPlugin {
             for (int i = 0; i < strokesArray.length(); i++) {
                 Stroke.Builder strokeBuilder = Stroke.builder();
                 JSONArray pointsArray = strokesArray.getJSONObject(i).getJSONArray("points");
-                
+
                 for (int j = 0; j < pointsArray.length(); j++) {
                     JSONObject p = pointsArray.getJSONObject(j);
                     float x = (float) p.getDouble("x");
@@ -51,27 +59,27 @@ public class DigitalHandWriting extends CordovaPlugin {
             Ink ink = inkBuilder.build();
 
             // Match language string (e.g., "en", "hu") to ML Kit model space
-            DigitalInkRecognitionModelIdentifier modelIdentifier = 
-                DigitalInkRecognitionModelIdentifier.fromLanguageTag(langTag);
-            
+            DigitalInkRecognitionModelIdentifier modelIdentifier =
+                    DigitalInkRecognitionModelIdentifier.fromLanguageTag(langTag);
+
             if (modelIdentifier == null) {
                 callbackContext.error("Unsupported language tag: " + langTag);
                 return;
             }
 
-            DigitalInkRecognitionModel model = 
-                DigitalInkRecognitionModel.builder(modelIdentifier).build();
+            DigitalInkRecognitionModel model =
+                    DigitalInkRecognitionModel.builder(modelIdentifier).build();
             RemoteModelManager modelManager = RemoteModelManager.getInstance();
 
-            // Auto-download checking logic
+            // Auto-download checking logic runs off-ui thread safely here
             modelManager.isModelDownloaded(model).addOnSuccessListener(isDownloaded -> {
                 if (isDownloaded) {
                     performRecognition(model, ink, callbackContext);
                 } else {
                     // Downloads language pack dynamically if missing (~20MB)
                     modelManager.download(model, new com.google.mlkit.common.model.DownloadConditions.Builder().build())
-                        .addOnSuccessListener(aVoid -> performRecognition(model, ink, callbackContext))
-                        .addOnFailureListener(e -> callbackContext.error("Model download failed: " + e.getMessage()));
+                            .addOnSuccessListener(aVoid -> performRecognition(model, ink, callbackContext))
+                            .addOnFailureListener(e -> callbackContext.error("Model download failed: " + e.getMessage()));
                 }
             });
 
@@ -82,24 +90,24 @@ public class DigitalHandWriting extends CordovaPlugin {
 
     private void performRecognition(DigitalInkRecognitionModel model, Ink ink, CallbackContext callbackContext) {
         DigitalInkRecognizer recognizer = DigitalInkRecognition.getClient(
-            DigitalInkRecognizerOptions.builder(model).build()
+                DigitalInkRecognizerOptions.builder(model).build()
         );
 
         recognizer.recognize(ink)
-            .addOnSuccessListener(result -> {
-                try {
-                    JSONObject response = new JSONObject();
-                    if (!result.getCandidates().isEmpty()) {
-                        // Return the highest-confidence prediction candidate
-                        response.put("text", result.getCandidates().get(0).getText());
-                    } else {
-                        response.put("text", "");
+                .addOnSuccessListener(result -> {
+                    try {
+                        JSONObject response = new JSONObject();
+                        if (!result.getCandidates().isEmpty()) {
+                            // Return the highest-confidence prediction candidate
+                            response.put("text", result.getCandidates().get(0).getText());
+                        } else {
+                            response.put("text", "");
+                        }
+                        callbackContext.success(response);
+                    } catch (JSONException e) {
+                        callbackContext.error("JSON formatting error: " + e.getMessage());
                     }
-                    callbackContext.success(response);
-                } catch (JSONException e) {
-                    callbackContext.error("JSON formatting error: " + e.getMessage());
-                }
-            })
-            .addOnFailureListener(e -> callbackContext.error("Recognition failed: " + e.getMessage()));
+                })
+                .addOnFailureListener(e -> callbackContext.error("Recognition failed: " + e.getMessage()));
     }
 }
