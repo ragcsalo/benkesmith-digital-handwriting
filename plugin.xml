@@ -21,13 +21,24 @@
         <source-file src="src/android/DigitalHandWriting.java" target-dir="src/com/benkesmith/digitalhandwriting" />
     </platform>
 
-    <platform name="ios">
-        <config-file target="config.xml" parent="/*">
-            <feature name="DigitalHandWriting">
-                <param name="ios-package" value="DigitalHandWriting" />
-            </feature>
-        </config-file>
-		<source-file src="src/ios/DigitalHandWriting.h" />
-		<source-file src="src/ios/DigitalHandWriting.m" />
-    </platform>
+	<platform name="ios">
+	    <config-file parent="/*" target="config.xml">
+	        <feature name="DigitalHandWriting">
+	            <param name="ios-package" value="DigitalHandWriting" />
+	        </feature>
+	    </config-file>
+	
+	    <podspec>
+	        <config>
+	            <source url="https://github.com/CocoaPods/Specs.git"/>
+	        </config>
+	        <pods use-frameworks="true">
+	            <pod name="GoogleMLKit/DigitalInkRecognition" spec="~> 6.0.0" />
+	        </pods>
+	    </podspec>
+	
+	    <header-file src="src/ios/DigitalHandWriting.h" />
+	    <source-file src="src/ios/DigitalHandWriting.m" />
+	</platform>
+	
 </plugin>
